@@ -1,35 +1,15 @@
-﻿static void MakeInfiniteRecursion(int x)
-{
-    Console.WriteLine(x);
-    MakeInfiniteRecursion(++x);
-}
+﻿using BenchmarkDotNet.Running;
+using stack_overflow;
 
+// BenchmarkRunner.Run<StackOverflowDemo>();
 
-static void ThrowStackOverflowViaCLR()
-{
-    try
-    {
-        MakeInfiniteRecursion(1);
-    }
-    catch(StackOverflowException exe)
-    {
-        // Won't work. Only if the host env will specifically allow stack overflow exception to be handled.
-        Console.WriteLine(exe);
-    }
-}
+const int oneMbInBytes = 1000000;
 
-static void ThrowStackOveflowViaCode()
-{
-    try
-    {
-        throw new StackOverflowException("Its me, stack oveflow exception!");
-    }
-    catch(StackOverflowException exe)
-    {
-        // This works.
-        Console.WriteLine(exe);
-    }
-}
-
-ThrowStackOveflowViaCode();
-
+//   maxStackSize:
+//     The maximum stack size, in bytes, to be used by the thread, or 0 to use the default
+//     maximum stack size specified in the header for the executable. Important For
+//     partially trusted code, maxStackSize is ignored if it is greater than the default
+//     stack size. No exception is thrown.
+var myTinyThread = new Thread(new ThreadStart(() => { Task.Delay(10000000); }), oneMbInBytes * 10);
+myTinyThread.IsBackground = false;
+myTinyThread.Start();
